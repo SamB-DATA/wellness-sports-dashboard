@@ -1,0 +1,59 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_sport
+    environment:
+      POSTGRES_USER: sport_user
+      POSTGRES_PASSWORD: sport_password
+      POSTGRES_DB: sport_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  kestra:
+    image: kestra/kestra:latest
+    container_name: kestra
+    command: server standalone
+    ports:
+      - "8080:8080"
+    environment:
+      KESTRA_CONFIGURATION: |
+        kestra:
+          repository:
+            type: memory
+          queue:
+            type: memory
+          storage:
+            type: local
+            local:
+              basePath: "/tmp/kestra-storage"
+    depends_on:
+      - postgres
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - 1G
+      - --reserve-memory
+      - 0M
+      - --node-id
+      - "0"
+      - --check=false
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:19092
+      - --advertise-kafka-addr
+      - PLAINTEXT://localhost:19092
+    ports:
+      - "19092:19092"
+
+volumes:
+  postgres_data:
