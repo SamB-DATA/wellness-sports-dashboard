@@ -123,7 +123,14 @@ Cela permet de simuler un flux événementiel simple dans un contexte POC.
 
 ---
 
-## 8. Améliorations possibles
+## 8. Limites du projet
+
+- L’envoi vers Slack est simulé (webhook non configuré)
+- Le workflow Kestra n’est pas entièrement automatisé (exécution manuelle possible)
+- Les données sportives sont simulées via Faker pour reproduire un cas réel
+---
+
+## 9. Améliorations possibles
 
 * connexion à une API réelle (ex : Strava)
 * mise en place d’un vrai pipeline temps réel
@@ -131,9 +138,10 @@ Cela permet de simuler un flux événementiel simple dans un contexte POC.
 * ajout de contrôles qualité avancés
 * intégration complète avec Slack (webhook actif)
 
+
 ---
 
-## 9. Lancement du projet
+## 10. Lancement du projet
 
 ```bash
 docker compose up -d
