@@ -83,6 +83,9 @@ Le dashboard permet également de filtrer par :
 👉 Lien du dashboard :
 https://public.tableau.com/views/P12Creezetautomatisezunearchitecturededonnees/Tableaudebord1?:language=fr-FR&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 
+### Aperçu du dashboard
+
+![Dashboard](docs/dashboard.png)
 ---
 
 ## 6. Résultats
