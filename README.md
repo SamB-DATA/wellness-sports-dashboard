@@ -2,12 +2,13 @@
 
 ## 1. Contexte
 
-Dans ce projet, j’ai réalisé un Proof of Concept (POC) d’un pipeline data permettant d’analyser l’impact de l’activité sportive des salariés sur des avantages RH, notamment :
+Dans ce projet, j’ai réalisé un Proof of Concept (POC) d’un pipeline data permettant d’analyser l’impact de l’activité sportive des salariés sur des avantages RH.
 
-* la prime sportive
-* les jours de bien-être
+L’objectif est de transformer des données brutes en indicateurs exploitables pour la prise de décision, notamment autour :
 
-L’objectif est de transformer des données brutes en indicateurs exploitables pour la prise de décision.
+* de la prime sportive
+* des jours de bien-être
+* de l’engagement des salariés
 
 ---
 
@@ -26,28 +27,29 @@ Ces données sont chargées dans PostgreSQL pour être traitées.
 
 Le pipeline suit les étapes suivantes :
 
-1. **Extract**
+### 1. Extract
 
-   * chargement des fichiers Excel dans PostgreSQL
+* chargement des fichiers Excel dans PostgreSQL
+* génération d’un historique sportif simulé
 
-2. **Transform**
+### 2. Transform
 
-   * nettoyage des données
-   * normalisation des champs
-   * calcul des règles métier :
+* nettoyage des données
+* normalisation des formats
+* application des règles métier :
 
-     * éligibilité à la prime sportive
-     * calcul du montant de la prime
-     * calcul du nombre d’activités sportives
-     * éligibilité aux jours bien-être
+  * éligibilité à la prime sportive
+  * calcul du montant de la prime
+  * calcul du nombre d’activités sportives
+  * éligibilité aux jours bien-être
 
-3. **Load**
+### 3. Load
 
-   * stockage dans une table finale `employee_benefits`
+* stockage des données transformées dans la table finale `employee_benefits`
 
-4. **Export**
+### 4. Export
 
-   * export des données vers des fichiers CSV pour Tableau Public
+* export des données vers des fichiers CSV pour Tableau Public
 
 ---
 
@@ -59,6 +61,7 @@ Le pipeline suit les étapes suivantes :
 * Kestra (orchestration)
 * Redpanda (simulation temps réel - POC)
 * Tableau Public (visualisation)
+* GitHub (versioning)
 
 ---
 
@@ -72,7 +75,13 @@ J’ai réalisé un dashboard interactif dans Tableau Public permettant de visua
 * le taux d’éligibilité
 * la répartition des activités sportives
 
-Le dashboard permet également de filtrer par type de sport et niveau d’activité.
+Le dashboard permet également de filtrer par :
+
+* type de sport
+* niveau d’activité
+
+👉 Lien du dashboard :
+(AJOUTER ICI TON LIEN TABLEAU PUBLIC)
 
 ---
 
@@ -87,16 +96,41 @@ Ce projet permet de :
 
 ---
 
-## 7. Améliorations possibles
+## 7. Intégration Slack
 
-* connexion à une API réelle (ex : Strava)
-* mise en place d’un vrai pipeline temps réel
-* ajout de contrôles qualité avancés
-* automatisation complète via Kestra
+Dans ce projet, j’ai implémenté une simulation d’intégration Slack afin de répondre au besoin métier suivant :
+
+> Chaque activité sportive doit générer une notification automatique pour encourager l’engagement des salariés.
+
+J’ai développé un script Python qui :
+
+* récupère la dernière activité sportive depuis PostgreSQL
+* construit un message personnalisé (nom, activité, distance, durée)
+* envoie ce message vers un channel Slack via un webhook
+
+Lorsque le webhook n’est pas configuré, le message est affiché dans le terminal pour simuler le fonctionnement.
+
+Exemple de message :
+
+```text
+Bravo Caroline Olivier ! Tu viens de faire 5.8 km en 199 min en Randonnée ! 🔥🏅
+```
+
+Cela permet de simuler un flux événementiel simple dans un contexte POC.
 
 ---
 
-## 8. Lancement du projet
+## 8. Améliorations possibles
+
+* connexion à une API réelle (ex : Strava)
+* mise en place d’un vrai pipeline temps réel
+* automatisation complète via Kestra
+* ajout de contrôles qualité avancés
+* intégration complète avec Slack (webhook actif)
+
+---
+
+## 9. Lancement du projet
 
 ```bash
 docker compose up -d
@@ -104,4 +138,17 @@ python src/load/load_excel_to_postgres.py
 python src/extract/generate_sport_history.py
 python src/transform/transform_business_rules.py
 python src/load/export_for_tableau.py
+python src/slack/send_slack_activity.py
 ```
+
+---
+
+## 10. Sécurité
+
+Les informations sensibles (identifiants PostgreSQL, webhook Slack) sont stockées dans un fichier `.env` non versionné.
+
+---
+
+## 11. Auteur
+
+Projet réalisé par Samir Belasri dans le cadre du parcours Data Engineer.
