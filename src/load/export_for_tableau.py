@@ -17,7 +17,6 @@ output_dir = "reports/tableau"
 
 tables = {
     "employee_benefits": "employee_benefits.csv",
-    "kpi_summary": "kpi_summary.csv",
     "sport_history": "sport_history.csv"
 }
 
