@@ -17,7 +17,7 @@ L’objectif est de transformer des données brutes en indicateurs exploitables 
 J’ai utilisé deux sources principales :
 
 * un fichier RH contenant les informations des salariés (salaire, moyen de transport, etc.)
-* un fichier d’activités sportives simulées généré via Python
+* un historique d’activités sportives simulé généré via Python
 
 Ces données sont chargées dans PostgreSQL pour être traitées.
 
@@ -58,7 +58,7 @@ Le pipeline suit les étapes suivantes :
 * Python (Pandas)
 * PostgreSQL
 * Docker
-* Kestra (orchestration)
+* Kestra (orchestration - POC)
 * Redpanda (simulation temps réel - POC)
 * Tableau Public (visualisation)
 * GitHub (versioning)
@@ -81,7 +81,7 @@ Le dashboard permet également de filtrer par :
 * niveau d’activité
 
 👉 Lien du dashboard :
-(AJOUTER ICI TON LIEN TABLEAU PUBLIC)
+https://public.tableau.com/views/P12Creezetautomatisezunearchitecturededonnees/Tableaudebord1?:language=fr-FR&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 
 ---
 
