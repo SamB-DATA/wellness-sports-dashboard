@@ -1,0 +1,25 @@
+id: poc_avantages_sportifs
+namespace: p12.sport
+
+description: |
+  Flow de démonstration pour le POC avantages sportifs.
+  Il permet de vérifier que l'infrastructure est lancée et que PostgreSQL contient les données transformées.
+
+tasks:
+  - id: check_postgres_employee_benefits
+    type: io.kestra.plugin.jdbc.postgresql.Query
+    url: jdbc:postgresql://postgres:5432/sport_db
+    username: sport_user
+    password: sport_password
+    sql: |
+      SELECT COUNT(*) AS nb_salaries
+      FROM employee_benefits;
+
+  - id: check_postgres_sport_history
+    type: io.kestra.plugin.jdbc.postgresql.Query
+    url: jdbc:postgresql://postgres:5432/sport_db
+    username: sport_user
+    password: sport_password
+    sql: |
+      SELECT COUNT(*) AS nb_activites
+      FROM sport_history;

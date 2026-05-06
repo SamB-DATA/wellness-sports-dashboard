@@ -1,16 +1,45 @@
 services:
-
   postgres:
     image: postgres:15
     container_name: postgres_sport
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: sport_user
-      POSTGRES_PASSWORD: sport_password
-      POSTGRES_DB: sport_db
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sport_network
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - "1G"
+      - --reserve-memory
+      - "0M"
+      - --node-id
+      - "0"
+      - --check=false
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:19092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:9092,OUTSIDE://localhost:19092
+    ports:
+      - "19092:19092"
+      - "9092:9092"
+    networks:
+      - sport_network
 
   kestra:
     image: kestra/kestra:latest
@@ -31,29 +60,13 @@ services:
               basePath: "/tmp/kestra-storage"
     depends_on:
       - postgres
-
-  redpanda:
-    image: docker.redpanda.com/redpandadata/redpanda:latest
-    container_name: redpanda
-    command:
       - redpanda
-      - start
-      - --overprovisioned
-      - --smp
-      - "1"
-      - --memory
-      - 1G
-      - --reserve-memory
-      - 0M
-      - --node-id
-      - "0"
-      - --check=false
-      - --kafka-addr
-      - PLAINTEXT://0.0.0.0:19092
-      - --advertise-kafka-addr
-      - PLAINTEXT://localhost:19092
-    ports:
-      - "19092:19092"
+    networks:
+      - sport_network
 
 volumes:
   postgres_data:
+
+networks:
+  sport_network:
+    driver: bridge
