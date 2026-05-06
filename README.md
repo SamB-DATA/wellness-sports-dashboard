@@ -2,164 +2,451 @@
 
 ## 1. Contexte
 
-Dans ce projet, j’ai réalisé un Proof of Concept (POC) d’un pipeline data permettant d’analyser l’impact de l’activité sportive des salariés sur des avantages RH.
+Dans ce projet, j’ai réalisé un Proof of Concept (POC) d’un pipeline ETL permettant d’analyser l’impact de l’activité sportive des salariés sur des avantages RH.
 
-L’objectif est de transformer des données brutes en indicateurs exploitables pour la prise de décision, notamment autour :
+L’objectif est de transformer des données brutes en indicateurs exploitables afin d’aider la prise de décision autour :
 
-* de la prime sportive
-* des jours de bien-être
-* de l’engagement des salariés
+- des primes sportives
+- des jours de bien-être
+- de l’engagement des salariés
+- du coût global des avantages RH
 
----
-
-## 2. Sources de données
-
-J’ai utilisé deux sources principales :
-
-* un fichier RH contenant les informations des salariés (salaire, moyen de transport, etc.)
-* un historique d’activités sportives simulé généré via Python
-
-Ces données sont chargées dans PostgreSQL pour être traitées.
+Ce projet simule une architecture data moderne combinant :
+- traitement ETL
+- orchestration
+- base de données
+- visualisation BI
+- événements temps réel
+- notifications collaboratives
 
 ---
 
-## 3. Architecture du projet
+# 2. Sources de données
 
-Le pipeline suit les étapes suivantes :
+Le projet repose sur deux sources principales.
 
-### 1. Extract
+## Données RH
 
-* chargement des fichiers Excel dans PostgreSQL
-* génération d’un historique sportif simulé
+Un fichier RH contenant notamment :
 
-### 2. Transform
+- identifiant salarié
+- nom
+- département
+- salaire
+- moyen de transport
+- informations administratives
 
-* nettoyage des données
-* normalisation des formats
-* application des règles métier :
+## Données sportives
 
-  * éligibilité à la prime sportive
-  * calcul du montant de la prime
-  * calcul du nombre d’activités sportives
-  * éligibilité aux jours bien-être
+Un historique d’activités sportives simulé avec Python et Faker :
 
-### 3. Load
+- sport pratiqué
+- distance parcourue
+- durée de l’activité
+- date de l’activité
 
-* stockage des données transformées dans la table finale `employee_benefits`
-
-### 4. Export
-
-* export des données vers des fichiers CSV pour Tableau Public
+Les données sont volontairement simulées afin de reproduire un cas métier réaliste dans un contexte POC.
 
 ---
 
-## 4. Stack technique
+# 3. Architecture du pipeline
 
-* Python (Pandas)
-* PostgreSQL
-* Docker
-* Kestra (orchestration - POC)
-* Redpanda (simulation temps réel - POC)
-* Tableau Public (visualisation)
-* GitHub (versioning)
+Le pipeline suit une logique ETL complète.
+
+## 1. Extract
+
+### Chargement des données RH
+
+Les données RH sont chargées dans PostgreSQL.
+
+### Génération des activités sportives
+
+Un script Python génère un historique d’activités sportives réaliste.
 
 ---
 
-## 5. Dashboard
+## 2. Transform
 
-J’ai réalisé un dashboard interactif dans Tableau Public permettant de visualiser :
+Les données sont nettoyées et enrichies :
 
-* le nombre de salariés
-* le nombre d’éligibles aux avantages
-* le coût total des primes
-* le taux d’éligibilité
-* la répartition des activités sportives
+- normalisation des formats
+- contrôles qualité
+- suppression des incohérences
+- application des règles métier
 
-Le dashboard permet également de filtrer par :
+### Règles métier appliquées
 
-* type de sport
-* niveau d’activité
+#### Prime sportive
 
-👉 Lien du dashboard :
+La prime dépend :
+
+- du mode de déplacement sportif
+- du niveau d’activité
+- de la régularité sportive
+
+Le montant correspond à 5 % du salaire brut pour les salariés éligibles.
+
+#### Jours bien-être
+
+Des jours bien-être sont attribués selon le nombre d’activités sportives annuelles.
+
+Un salarié devient éligible à partir de 15 activités annuelles.
+
+---
+
+## 3. Load
+
+Les données transformées sont stockées dans la table finale :
+
+employee_benefits
+
+Cette table contient les indicateurs utilisés pour le reporting.
+
+---
+
+## 4. Export
+
+Les données finales sont exportées au format CSV pour Tableau Public :
+
+- employee_benefits.csv
+- sport_history.csv
+
+---
+
+# 4. Architecture technique
+
+Le pipeline repose sur l’architecture suivante :
+
+Python ETL
+↓
+PostgreSQL
+↓
+Kestra (orchestration)
+↓
+Exports CSV
+↓
+Tableau Public
+
+Une seconde chaîne événementielle temps réel a également été ajoutée :
+
+Python Producer
+↓
+Redpanda / Kafka
+↓
+Python Consumer
+↓
+Slack API
+
+Cette architecture permet de démontrer :
+
+- un pipeline batch ETL
+- une logique événementielle temps réel
+- une orchestration technique
+- une intégration collaborative
+
+---
+
+# 5. Stack technique
+
+## Python
+
+Utilisé pour :
+
+- l’ETL
+- les règles métier
+- la génération des données
+- les scripts Kafka
+- les notifications Slack
+
+Librairies principales :
+
+- pandas
+- faker
+- kafka-python
+- slack-sdk
+- sqlalchemy
+
+---
+
+## PostgreSQL
+
+Utilisé comme base de données relationnelle pour :
+
+- stocker les données brutes
+- stocker les données transformées
+- centraliser les tables finales
+
+---
+
+## Docker
+
+Utilisé pour conteneuriser :
+
+- PostgreSQL
+- Kestra
+- Redpanda
+
+Cela permet :
+
+- la reproductibilité
+- l’isolation des services
+- le démarrage rapide de l’infrastructure
+
+---
+
+## Kestra
+
+Utilisé pour orchestrer les workflows.
+
+Le flow Kestra permet notamment de :
+
+- vérifier l’état de la base PostgreSQL
+- contrôler les tables générées
+- superviser les exécutions
+
+---
+
+## Redpanda / Kafka
+
+Utilisé pour simuler un pipeline temps réel événementiel.
+
+Chaque activité sportive produit un événement Kafka consommé ensuite par un consumer Python.
+
+---
+
+## Slack API
+
+Utilisé pour envoyer automatiquement des notifications dans un channel Slack.
+
+Exemple :
+
+🏃 Nouvelle activité sportive détectée
+
+Employé : Samir Belasri
+Sport : Course à pied
+Distance : 8.4 km
+Durée : 47 minutes
+
+Bravo Samir Belasri ! 🔥🏅
+
+---
+
+## Tableau Public
+
+Utilisé pour créer le dashboard final et visualiser les KPI RH et sportifs.
+
+---
+
+## GitHub
+
+Utilisé pour :
+
+- le versioning
+- le partage du code
+- la documentation technique
+
+---
+
+# 6. Dashboard Tableau
+
+Le dashboard Tableau permet de visualiser :
+
+- le nombre total de salariés
+- le nombre d’éligibles
+- le coût total des primes
+- le taux d’éligibilité
+- les sports les plus pratiqués
+- les niveaux d’activité
+- les avantages attribués
+
+Des filtres interactifs permettent d’analyser :
+
+- les types de sport
+- les profils salariés
+- les niveaux d’activité
+
+---
+
+## Lien du dashboard
+
 https://public.tableau.com/views/P12Creezetautomatisezunearchitecturededonnees/Tableaudebord1?:language=fr-FR&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 
-### Aperçu du dashboard
+---
+
+## Aperçu du dashboard
 
 ![Dashboard](docs/dashboard.png)
----
-
-## 6. Résultats
-
-Ce projet permet de :
-
-* mesurer l’engagement sportif des salariés
-* estimer le coût des avantages RH
-* identifier les profils les plus actifs
-* faciliter la prise de décision
 
 ---
 
-## 7. Intégration Slack
+# 7. Intégration temps réel avec Redpanda et Slack
 
-Dans ce projet, j’ai implémenté une simulation d’intégration Slack afin de répondre au besoin métier suivant :
+Le projet intègre une simulation temps réel basée sur Kafka / Redpanda.
 
-> Chaque activité sportive doit générer une notification automatique pour encourager l’engagement des salariés.
+## Fonctionnement
 
-J’ai développé un script Python qui :
+### Producer Python
 
-* récupère la dernière activité sportive depuis PostgreSQL
-* construit un message personnalisé (nom, activité, distance, durée)
-* envoie ce message vers un channel Slack via un webhook
+Un producer envoie une activité sportive dans un topic Kafka.
 
-Lorsque le webhook n’est pas configuré, le message est affiché dans le terminal pour simuler le fonctionnement.
+### Redpanda
 
-Exemple de message :
+Redpanda joue le rôle de broker événementiel.
 
-```text
-Bravo Caroline Olivier ! Tu viens de faire 5.8 km en 199 min en Randonnée ! 🔥🏅
-```
+### Consumer Python
 
-Cela permet de simuler un flux événementiel simple dans un contexte POC.
+Le consumer récupère les événements puis :
 
----
+- analyse l’activité
+- construit un message métier
+- envoie automatiquement une notification Slack
 
-## 8. Limites du projet
+### Slack
 
-- L’envoi vers Slack est simulé (webhook non configuré)
-- Le workflow Kestra n’est pas entièrement automatisé (exécution manuelle possible)
-- Les données sportives sont simulées via Faker pour reproduire un cas réel
----
+Le message est envoyé dans le channel :
 
-## 9. Améliorations possibles
-
-* connexion à une API réelle (ex : Strava)
-* mise en place d’un vrai pipeline temps réel
-* automatisation complète via Kestra
-* ajout de contrôles qualité avancés
-* intégration complète avec Slack (webhook actif)
-
+#sport-activities
 
 ---
 
-## 10. Lancement du projet
+# 8. Résultats obtenus
 
-```bash
+Le projet permet de :
+
+- mesurer l’engagement sportif
+- calculer les avantages RH
+- analyser les coûts RH
+- automatiser le traitement des données
+- superviser l’exécution des flux
+- démontrer une architecture data moderne
+
+---
+
+# 9. Limites du projet
+
+Ce projet reste un POC.
+
+Limites actuelles :
+
+- données simulées via Faker
+- orchestration Kestra simplifiée
+- absence de CI/CD
+- pas de Data Warehouse
+- pas de monitoring avancé
+- pas d’authentification centralisée
+
+---
+
+# 10. Améliorations possibles
+
+Améliorations envisagées :
+
+- connexion à une API sportive réelle (Strava)
+- pipeline Kafka entièrement automatisé
+- orchestration complète avec Kestra
+- ajout de tests qualité automatisés
+- monitoring temps réel
+- déploiement cloud
+- création d’une API métier
+- historisation avancée des données
+- dashboard Power BI professionnel
+
+---
+
+# 11. Lancement du projet
+
+## Démarrage de l’infrastructure
+
 docker compose up -d
+
+---
+
+## Chargement des données RH
+
 python src/load/load_excel_to_postgres.py
+
+---
+
+## Génération des activités sportives
+
 python src/extract/generate_sport_history.py
+
+---
+
+## Transformation métier
+
 python src/transform/transform_business_rules.py
+
+---
+
+## Export Tableau
+
 python src/load/export_for_tableau.py
-python src/slack/send_slack_activity.py
-```
 
 ---
 
-## 10. Sécurité
+## Producer Kafka
 
-Les informations sensibles (identifiants PostgreSQL, webhook Slack) sont stockées dans un fichier `.env` non versionné.
+python src/slack/kafka_producer.py
 
 ---
 
-## 11. Auteur
+## Consumer Kafka + Slack
+
+python src/slack/kafka_consumer.py
+
+---
+
+# 12. Sécurité
+
+Les informations sensibles sont externalisées dans un fichier :
+
+.env
+
+Ce fichier contient notamment :
+
+- identifiants PostgreSQL
+- token Slack
+- variables d’environnement
+
+Le fichier .env est exclu du versioning GitHub via .gitignore.
+
+---
+
+# 13. Structure du projet
+
+src/
+├── extract/
+├── transform/
+├── load/
+├── slack/
+├── orchestration/
+├── quality/
+└── utils/
+
+reports/
+└── tableau/
+
+docs/
+
+docker-compose.yml
+README.md
+requirements.txt
+
+---
+
+# 14. Liens du projet
+
+## GitHub
+
+https://github.com/SamB-DATA/wellness-sports-dashboard
+
+## Dashboard Tableau
+
+https://public.tableau.com/views/P12Creezetautomatisezunearchitecturededonnees/Tableaudebord1?:language=fr-FR&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
+
+---
+
+# 15. Auteur
 
 Projet réalisé par Samir Belasri dans le cadre du parcours Data Engineer.
